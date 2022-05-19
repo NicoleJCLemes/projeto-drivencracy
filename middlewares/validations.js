@@ -1,22 +1,49 @@
-const pollValidation = (req, res, next) => {
+import dayjs from "dayjs";
+import db from "../db.js";
+import { ObjectId } from "mongodb";
+
+const pollValidation = async (req, res, next) => {
     const {title} = req.body;
-    let {expireAt} = req.body;
+    //let {expireAt} = req.body;
 
     if(!title) {
-        res.sendStatus(422)
+        res.sendStatus(422);
     }
 
-    if(!expireAt) {
-        expireAt = 30*24*60*60*1000;
+    const isThere = await db.collection("polls").findOne({title});
+
+    if(isThere) {
+        res.sendStatus(409);
     }
 
-    console.log(expireAt);
+    /*if(!expireAt) {
+        expireAt = dayjs().add(30, "day").format("YYYY-MM-D hh:mm");
+        console.log(expireAt);
+    }*/
 
     next();
 }
 
-const choiceValidation = (req, res, next) => {
+const choiceValidation = async (req, res, next) => {
+    const {title, pollId} = req.body;
 
+    if(!title) {
+        res.sendStatus(422);
+    }
+
+    const isThere = await db.collection("choices").findOne({title});
+    
+    if(isThere) {
+        res.sendStatus(409);
+    }
+    
+    const isPoll = await db.collection("polls").findOne({_id: new ObjectId(pollId)});
+
+    if (!isPoll) {
+        res.sendStatus(404);
+    }
+
+    next();
 }
 
 export { pollValidation, choiceValidation }

@@ -5,8 +5,8 @@ export async function postPoll(req, res) {
     console.log(req.body)
     try {
         await db.collection("polls").insertOne({
-            title,
-            expireAt
+            title
+            //expireAt
         });
         res.sendStatus(201);
     
