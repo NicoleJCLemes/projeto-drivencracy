@@ -1,13 +1,14 @@
 import db from "../db.js";
 import { ObjectId } from "mongodb";
+import dayjs from "dayjs";
 
 export async function postPoll(req, res) {
-    const {title} = req.body;
+    const {title, expireAt} = req.body;
     console.log(req.body)
     try {
         await db.collection("polls").insertOne({
-            title
-            //expireAt
+            title,
+            expireAt: expireAt || dayjs().add(30, "day").format("YYYY-MM-D hh:mm")
         });
         res.sendStatus(201);
     
@@ -56,6 +57,11 @@ export async function getPollResult(req, res) {
         });
 
         const mostVoted = await db.collection("choices").findOne({_id: new ObjectId(result[0].optionId)});
+
+        if (result[0].amount === result[1].amount) {
+            res.send("Não houve uma opção vencedora!");
+            return
+        }
 
         res.send({
             title,
