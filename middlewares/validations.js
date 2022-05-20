@@ -46,4 +46,16 @@ const choiceValidation = async (req, res, next) => {
     next();
 }
 
-export { pollValidation, choiceValidation }
+const voteValidation = async (req, res, next) => {
+    const {id} = req.body
+
+    const isThere = await db.collection("choices").findOne({_id: new ObjectId(id)});
+    
+    if(!isThere) {
+        res.sendStatus(404);
+    }
+
+    next();
+}
+
+export { pollValidation, choiceValidation, voteValidation }
